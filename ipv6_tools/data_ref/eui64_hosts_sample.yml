@@ -1,0 +1,30 @@
+---
+all:
+  children:
+    remotes:
+      hosts:
+        node_1:
+          ansible_host: "2001:db8::a2bb:ccff:fe00:0300"
+          original_mac: "a0bbcc000300"
+        node_3:
+          ansible_host: "2001:db8::a0bb:ccff:fe00:0300"
+          original_mac: "a2bbcc000300"
+        node_5:
+          ansible_host: "2001:db8::a6bb:ccff:fe00:0300"
+          original_mac: "a4bbcc000300"
+        node_7:
+          ansible_host: "2001:db8::a4bb:ccff:fe00:0300"
+          original_mac: "a6bbcc000300"
+        node_9:
+          ansible_host: "2001:db8::aabb:ccff:fe00:0300"
+          original_mac: "a8bbcc000300"
+        node_11:
+          ansible_host: "2001:db8::a8bb:ccff:fe00:0300"
+          original_mac: "aabbcc000300"
+        node_13:
+          ansible_host: "2001:db8::aebb:ccff:fe00:0300"
+          original_mac: "acbbcc000300"
+        node_15:
+          ansible_host: "2001:db8::acbb:ccff:fe00:0300"
+          original_mac: "aebbcc000300"
+...

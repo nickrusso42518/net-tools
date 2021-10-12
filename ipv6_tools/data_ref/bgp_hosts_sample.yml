@@ -1,0 +1,14 @@
+---
+all:
+  children:
+    remotes:
+      hosts:
+        node_1:
+          ansible_host: "2001:db8:aaaa:aaaa::1"
+        node_2:
+          ansible_host: "2001:db8:aaaa:aaaa::2"
+        node_3:
+          ansible_host: "2001:db8:aaaa:aaaa::3"
+        node_4:
+          ansible_host: "2001:db8:aaaa:aaaa::4"
+...

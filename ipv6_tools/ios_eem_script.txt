@@ -1,0 +1,47 @@
+event manager applet EEM_RUN_BOOT_SCRIPT
+ event syslog pattern "SYS-5-RESTART"
+ action 010 cli command "enable"
+ action 100 comment IF THE HOSTNAME HASN'T BEEN SET, RUN SCRIPTS
+ action 110 cli command "show running-config | include ^hostname"
+ action 120 regexp "hostname REMOTE-" "$_cli_result"
+ action 130 if $_regexp_result ne "1"
+ action 140  cli command "event manager run EEM_HOSTNAME_TO_SN"
+ action 150  cli command "event manager run EEM_LOOPBACK_FROM_EUI64"
+ action 160  cli command "do write memory"
+ action 200 end
+!
+event manager applet EEM_HOSTNAME_TO_SN
+ event none sync yes
+ action 010 comment PARSE THE SERIAL NUMBER (SN) FROM CLI OUTPUT
+ action 020 cli command "enable"
+ action 030 cli command "show version | include Processor"
+ action 040 regexp ".*ID ([0-9A-Z]+)" "$_cli_result" SN_LINE_STR SN_VALUE
+ action 100 if $_regexp_result eq "1"
+ action 110  comment IF MATCH SUCCEEDS, NOTIFY USER AND UPDATE HOSTNAME
+ action 120  syslog priority notifications msg "Discovered SN is $SN_VALUE, setting hostname REMOTE-$SN_VALUE"
+ action 130  cli command "configure terminal"
+ action 140  cli command "hostname REMOTE-$SN_VALUE"
+ action 200 else
+ action 210  comment IF MATCH FAILS, NOTIFY USER, EXIT WITH ERROR CODE 1
+ action 220  syslog priority warnings msg "SN not parsed from string: $_cli_result"
+ action 230  exit 1
+ action 300 end
+!
+event manager applet EEM_LOOPBACK_FROM_EUI64
+ event none sync yes
+ action 010 comment PARSE THE IPV6 EUI-64 ADDRESS FROM CLI OUTPUT
+ action 020 cli command "enable"
+ action 030 cli command "show ipv6 interface brief Loopback0 | include 2001"
+ action 040 regexp "([0-9A-Fa-f:]+)" "$_cli_result" LB_LINE_STR LB_VALUE
+ action 100 if $_regexp_result eq "1"
+ action 110  comment IF MATCH SUCCEEDS, NOTIFY USER AND UPDATE LOOPBACK
+ action 120  syslog priority notifications msg "Discovered Loopback0 IPv6 $LB_VALUE, converting to /128 for mgmt"
+ action 130  cli command "configure terminal"
+ action 140  cli command "interface Loopback0"
+ action 150  cli command "no ipv6 address"
+ action 160  cli command "ipv6 address $LB_VALUE/128"
+ action 200 else
+ action 210  comment IF MATCH FAILS, NOTIFY USER, EXIT WITH ERROR CODE 1
+ action 220  syslog priority warnings msg "Loopback0 not parsed from string: $_cli_result"
+ action 230  exit 1
+ action 300 end
